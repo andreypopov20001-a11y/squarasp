@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2347e8">
+<title>Расписание · БФ СГЮА</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#2347e8;--ink:#0b1f5c;--sky:#e8f0ff;--line:#cfdcff;--paper:#fff;--bg:#f4f8ff;--muted:#5a6a9a;--shadow:4px 4px 0 var(--blue)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font:16px/1.45 Onest,system-ui,sans-serif;color:var(--ink);background:var(--bg);
+ background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px;
+ padding:env(safe-area-inset-top,0px) 0 calc(84px + env(safe-area-inset-bottom,0px))}
+main{max-width:640px;margin:0 auto;padding:18px 16px}
+h1,h2,.disp{font-family:Unbounded,Onest,sans-serif;margin:0;letter-spacing:-.01em}
+.hero{background:var(--blue);color:#fff;border:2px solid var(--ink);border-radius:22px;padding:18px 18px 16px;box-shadow:6px 6px 0 var(--ink);position:relative;overflow:hidden}
+.hero h1{font-size:clamp(24px,7vw,32px);font-weight:800;line-height:1.1}
+.hero p{margin:6px 0 0;opacity:.9;font-size:14px}
+.hero svg{position:absolute;right:-6px;top:-6px;width:96px;opacity:.28}
+.stick{display:inline-block;background:#fff;color:var(--blue);border:2px solid var(--ink);border-radius:999px;padding:2px 12px;font-weight:700;font-size:13px;transform:rotate(-2deg);margin-top:12px}
+.card{background:var(--paper);border:2px solid var(--ink);border-radius:18px;box-shadow:var(--shadow);padding:14px;margin-top:16px}
+.strip{display:flex;gap:8px;margin-top:18px;overflow-x:auto;padding:4px 4px 10px;scrollbar-width:none}
+.day{flex:1 0 62px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:14px;padding:8px 0;font:inherit;text-align:center;cursor:pointer;position:relative}
+.day b{display:block;font-family:Unbounded;font-size:18px}.day span{font-size:12px;color:var(--muted)}
+.day.sel{background:var(--blue);color:#fff;box-shadow:3px 3px 0 var(--ink)}.day.sel span{color:#dbe4ff}
+.day.today::after{content:"";position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--blue);border:2px solid var(--paper)}
+.day.sel.today::after{background:#fff;border-color:var(--blue)}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:8px}
+.nav h2{font-size:16px}
+.btn{border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:12px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}.btn.pri{background:var(--blue);color:#fff}
+.seg{display:flex;gap:6px}.seg .btn{padding:6px 12px;box-shadow:none}.seg .on{background:var(--ink);color:var(--paper)}
+.les{display:flex;gap:12px;margin-top:12px;border:2px solid var(--ink);border-radius:16px;background:var(--paper);overflow:hidden}
+.les .t{background:var(--sky);border-right:2px dashed var(--ink);padding:10px 10px;min-width:74px;text-align:center;font-family:Unbounded;font-size:15px;font-weight:600;display:flex;flex-direction:column;justify-content:center}
+.les .t small{font:500 12px Onest;color:var(--muted)}
+.les .b{padding:10px 10px 10px 0;flex:1;min-width:0}.les .s{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chip{font-size:13px;background:var(--sky);border-radius:999px;padding:2px 10px}
+.les.now{background:var(--blue);color:#fff;box-shadow:var(--shadow)}.les.now .t{background:var(--ink);color:#fff;border-color:#fff}.les.now .t small{color:#bcd}.les.now .chip{background:rgba(255,255,255,.2)}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;margin-bottom:4px;background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.les.nxt{border-style:dashed}.warn,.chg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:14px;border:2px dashed var(--blue);background:var(--sky)}
+.empty{text-align:center;padding:26px 10px;font-family:Unbounded;font-size:15px}.empty div{font-size:40px}
+.wx{display:flex;gap:14px;align-items:center}.wx .big{font:800 34px Unbounded}.wx small{color:var(--muted)}
+.note{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:2px dotted var(--line)}.note:last-child{border:0}
+.note input{width:22px;height:22px;accent-color:var(--blue);margin-top:2px;flex:none}.note p{margin:0;flex:1;overflow-wrap:anywhere}.note.done p{text-decoration:line-through;color:var(--muted)}
+.x{background:none;border:0;font-size:20px;color:var(--muted);cursor:pointer}
+input[type=datetime-local],input[type=text],input[type=email],input[type=password],textarea,select{width:100%;border:2px solid var(--ink);border-radius:12px;padding:10px 12px;font:inherit;background:var(--paper);color:var(--ink)}
+.row{display:flex;gap:8px}label.f{display:block;font-weight:700;margin:14px 0 6px}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:6px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:2px solid var(--ink)}
+.tabs button{flex:1;max-width:200px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:14px;padding:8px 0;font:700 12px Onest;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabs button span{font-size:20px}.tabs .on{background:var(--blue);color:#fff;box-shadow:3px 3px 0 var(--ink)}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin-top:22px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+@media(prefers-reduced-motion:no-preference){.pulse{animation:p 1.6s infinite}@keyframes p{50%{opacity:.35}}}
+
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding-right:50px}
+.pill{background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:3px 11px;font:700 13px Onest;text-decoration:none;white-space:nowrap}
+a.pill:active{transform:translate(1px,1px)}
+.soon{position:absolute;top:12px;right:-34px;background:var(--ink);color:#fff;font:700 10px Onest;padding:3px 36px;transform:rotate(38deg);letter-spacing:.04em}
+.chip.lnk{border:0;font:inherit;font-size:13px;cursor:pointer;color:inherit}
+.banner{background:var(--blue);color:#fff;border:2px solid var(--ink);border-radius:18px;box-shadow:var(--shadow);padding:14px;margin-top:16px}
+.tr{display:block;width:100%;text-align:left;border:2px solid var(--ink);border-radius:14px;background:var(--paper);color:var(--ink);padding:10px 12px;margin-top:8px;font:inherit;cursor:pointer}
+.tr small{color:var(--muted)}
+.msg{border:2px solid var(--ink);border-radius:14px;padding:8px 10px;margin-top:10px;background:var(--paper)}.msg:first-child{margin-top:0}
+.msg.me{background:var(--sky)}.msg.rep{margin-left:22px;border-style:dashed}
+.mh small{color:var(--muted);margin-left:6px}.mb{margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.qt{font-size:13px;color:var(--muted);border-left:3px solid var(--blue);padding-left:8px;margin-top:4px}
+.ma{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.ab{border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:999px;font:600 13px Onest;padding:2px 10px;cursor:pointer}.ab.on{background:var(--blue);color:#fff}
+.pv{position:relative;display:block;width:100%;text-align:left;border:2px solid var(--ink);border-radius:12px;background:var(--paper);padding:8px 10px;margin-top:6px;font:inherit;color:var(--ink);cursor:pointer;overflow:hidden}.pv .bar{position:absolute;inset:0 auto 0 0;background:var(--sky)}.pv span:last-child{position:relative}.pv.on{border-color:var(--blue);font-weight:700}.msg.ann{border-width:3px;background:var(--sky)}
+.err{color:#b3261e;font-size:14px;margin-top:6px}a{color:var(--blue);font-weight:700}
+button:disabled,select:disabled{opacity:.5}
+</style>
+</head>
+<body>
+<main>
+ <section class="hero">
+  <span class="soon">ВУЗ · скоро</span>
+  <div class="pills"><span class="pill" id="wxp">⛅ …</span><a class="pill" href="https://taxi.yandex.ru/" target="_blank" rel="noopener">🚕 Такси</a><a class="pill" href="https://yandex.ru/maps/?ll=47.8007%2C52.0278&amp;z=13&amp;mode=routes&amp;rtt=mt" target="_blank" rel="noopener">🚌 Автобусы</a></div>
+  <h1>Расписание</h1><p id="grp">БФ СГЮА</p><span class="stick" id="par"></span>
+ </section>
+ <div id="view"></div>
+ <div class="foot" id="foot"></div>
+</main>
+<nav class="tabs">
+ <button data-tab="sch"><span>📅</span>Пары</button>
+ <button data-tab="chat"><span>💬</span>Чаты</button>
+ <button data-tab="tea"><span>🎓</span>Препод.</button>
+ <button data-tab="idea"><span>💡</span>Идеи</button>
+ <button data-tab="more"><span>⚙️</span>Ещё</button>
+</nav>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const TZ="Europe/Saratov",LAT=52.0278,LON=47.8007,CITY="Балаково";
+const WD=["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"],WS=["пн","вт","ср","чт","пт","сб","вс"];
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ls={get:(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const DAY=864e5,iso=d=>d.toISOString().slice(0,10),dmy=d=>iso(d).split("-").reverse().join(".");
+const parse=s=>new Date(s+"T00:00:00Z"),add=(d,n)=>new Date(d.getTime()+n*DAY),mon=d=>add(d,-((d.getUTCDay()+6)%7)),wd=d=>(d.getUTCDay()+6)%7;
+function nowTZ(){const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+ return{date:parse(`${p.year}-${p.month}-${p.day}`),min:+p.hour*60+ +p.minute}}
+const CFG=window.CFG||{},sb=CFG.SUPABASE_URL&&window.supabase?supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY):null;
+const nm=n=>n.replace(/\.\s+/g,".").trim(),ago=t=>new Date(t).toLocaleString("ru",{timeZone:TZ,day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+let G=[],T=[],S={meta:{},weeks:{}},grp=ls.get("grp",null),user=null,prof=null,tab="sch",mode="day",sel=nowTZ().date,wx=null,am="in",amsg="",pk={p:"",c:"",g:""},pick=false,selTea=null,tq="",chatRoom=ls.get("cr","group"),ms="",ck="chat",EV=[],F={key:"",rows:[],mine:new Set(),reply:null},ch=null;
+const gi=()=>G.find(g=>g.id===grp),jt=o=>JSON.stringify(o);
+async function loadSched(){const g=gi();S={meta:{},weeks:{}};if(!g)return;if(window.DATA&&window.DATA.schedules[g.f]){S=window.DATA.schedules[g.f];return}try{S=await(await fetch(`data/schedules/${g.f}.json`,{cache:"no-cache"})).json()}catch{}}
+const ready=window.DATA?Promise.resolve().then(async()=>{G=window.DATA.groups;T=window.DATA.teachers;if(grp&&!gi())grp=null;await loadSched()}):Promise.all([fetch("data/groups.json",{cache:"no-cache"}).then(r=>r.json()).then(j=>G=j).catch(()=>{}),fetch("data/teachers.json",{cache:"no-cache"}).then(r=>r.json()).then(j=>T=j).catch(()=>{})]).then(async()=>{if(grp&&!gi())grp=null;await loadSched()});
+const cfg=()=>({sub:ls.get("sub","0"),anchor:ls.get("anchor","2026-10-12")});
+const parity=d=>(Math.round((mon(d)-mon(parse(cfg().anchor)))/(7*DAY))%2+2)%2===0?"чётная":"нечётная";
+function lessons(d){
+ const w=S.weeks[iso(mon(d))];let list,warn="",chg=false;
+ if(w){list=w.days[dmy(d)]||[];chg=(w.changed||[]).includes(dmy(d))&&Date.now()-new Date(w.updated)<72*36e5}
+ else{const p=parity(d),k=Object.keys(S.weeks).filter(k=>parity(parse(k))===p).sort().pop();
+  if(!k)return{list:null,warn,chg};
+  list=S.weeks[k].days[dmy(add(parse(k),wd(d)))]||[];warn=`Расписания на эту неделю на сайте ещё нет. Показываю по прошлой ${p==="чётная"?"чётной":"нечётной"} неделе, реальное может отличаться.`}
+ const sg=cfg().sub;
+ list=list.filter(l=>{const t=l.text.toLowerCase();return !(sg==="1"&&t.includes("вторая подгруппа"))&&!(sg==="2"&&t.includes("первая подгруппа"))});
+ return{list,warn,chg}}
+function pretty(t){const m=t.match(/^(.*?),?\s*преп\.,?\s*(.+?),\s*(ауд\.\s*\S+|спорткомплекс)\.?$/);
+ return m?`<div class="s">${esc(m[1])}</div><div class="chips"><button class="chip lnk" data-t="${esc(nm(m[2]))}">👤 ${esc(nm(m[2]))}</button><span class="chip">🚪 ${esc(m[3])}</span></div>`:`<div class="s">${esc(t)}</div>`}
+const mins=s=>+s.slice(0,2)*60+ +s.slice(3);
+function dayHTML(d,live){
+ const {list,warn,chg}=lessons(d),n=nowTZ();
+ let h=chg?`<div class="chg">⚠️ Расписание на этот день изменилось</div>`:"";
+ if(list===null)return h+`<div class="card empty"><div>🤷</div>Расписания на эту неделю пока нет</div>`;
+ if(!list.length)h+=`<div class="card empty"><div>🎉</div>${wd(d)===6?"Воскресенье, пар нет":"Пар нет"}</div>`;
+ let nextDone=false;
+ for(const l of list){let c="les",tag="";
+  if(live){const a=mins(l.start),b=mins(l.end);
+   if(n.min>=a&&n.min<b){c+=" now";tag=`<span class="tag"><span class="pulse">●</span> идёт сейчас</span>`}
+   else if(n.min<a&&!nextDone){nextDone=true;c+=" nxt";tag=`<span class="tag">дальше, через ${a-n.min<60?a-n.min+" мин":Math.floor((a-n.min)/60)+" ч "+(a-n.min)%60+" мин"}</span>`}}
+  h+=`<div class="${c}"><div class="t">${l.start}<small>${l.end}</small></div><div class="b">${tag}${pretty(l.text)}</div></div>`}
+ if(list.length&&!/САМОПОДГОТОВК/i.test(list[0].text))h+=`<div class="foot">Начало в ${list[0].start}, конец в ${list.at(-1).end}, пар: ${list.length}</div>`;
+ return h+(warn?`<div class="warn">⚠️ ${esc(warn)}</div>`:"")}
+const WMO={0:"ясно",1:"в основном ясно",2:"переменная облачность",3:"пасмурно",45:"туман",48:"изморозь",51:"морось",53:"морось",55:"сильная морось",61:"небольшой дождь",63:"дождь",65:"сильный дождь",71:"небольшой снег",73:"снег",75:"сильный снег",80:"ливень",81:"ливень",82:"сильный ливень",85:"снегопад",86:"сильный снегопад",95:"гроза",96:"гроза с градом",99:"гроза с градом"};
+function advice(w){const f=(w.fmin+w.fmax)/2;
+ let b=f<=-15?"очень холодно: зимняя куртка, шапка, шарф, перчатки":f<=-5?"мороз: зимняя куртка, шапка, перчатки":f<=3?"холодно: тёплая куртка или пуховик, шапка, перчатки":f<=10?"прохладно: куртка потеплее, под неё кофта":f<=16?"свежо: лёгкая куртка или худи с ветровкой":f<=22?"тепло: кофта или лёгкая куртка на вечер":"жарко: футболка, вода с собой";
+ const x=[];if(w.rp>=50||w.rm>=1)x.push("возьми зонт или куртку с капюшоном");if([71,73,75,77,85,86].includes(w.code))x.push("непромокаемая обувь");if(w.wind>=30)x.push("ветрено, нужно что-то непродуваемое");if(w.fmin<=5&&f>5)x.push("вечером холоднее, не снимай тёплый слой");
+ return b+(x.length?". "+x.join(", "):"")}
+async function loadWx(){try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&timezone=${TZ}&forecast_days=1&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max`;
+ const d=(await (await fetch(u)).json()).daily;wx={code:d.weather_code[0],tmax:d.temperature_2m_max[0],tmin:d.temperature_2m_min[0],fmax:d.apparent_temperature_max[0],fmin:d.apparent_temperature_min[0],rp:d.precipitation_probability_max[0]||0,rm:d.precipitation_sum[0]||0,wind:d.wind_speed_10m_max[0]||0}}catch{wx=false}render()}
+const wxHTML=()=>!wx?"":`<div class="card"><div class="wx"><div class="big">${Math.round(wx.tmin)}…${Math.round(wx.tmax)}°</div><div><b>${CITY}: ${WMO[wx.code]||""}</b><br><small>ощущается ${Math.round(wx.fmin)}…${Math.round(wx.fmax)}°, осадки до ${Math.round(wx.rp)}%, ветер до ${Math.round(wx.wind)} км/ч</small></div></div><p style="margin:10px 0 0">👕 ${esc(advice(wx))}</p></div>`;
+function viewSch(){
+ const n=nowTZ(),m=mon(sel);let h="";
+ if(mode==="day"&&sel.getTime()===n.date.getTime())h+=wxHTML();
+ h+=`<div class="nav"><button class="btn" id="pw">←</button><h2 class="disp">${dmy(m).slice(0,5)}–${dmy(add(m,5)).slice(0,5)}</h2><button class="btn" id="nw">→</button></div>
+ <div class="strip">${[0,1,2,3,4,5].map(i=>{const d=add(m,i);return`<button class="day ${d.getTime()===sel.getTime()?"sel":""} ${d.getTime()===n.date.getTime()?"today":""}" data-d="${iso(d)}"><span>${WS[i]}</span><b>${String(d.getUTCDate()).padStart(2,"0")}</b></button>`}).join("")}</div>
+ <div class="seg"><button class="btn ${mode==="day"?"on":""}" data-m="day">День</button><button class="btn ${mode==="week"?"on":""}" data-m="week">Неделя</button><button class="btn" id="td" style="margin-left:auto">Сегодня</button></div>`;
+ if(mode==="day")h+=`<h2 class="disp" style="font-size:15px;margin-top:18px">${WD[wd(sel)]}, ${dmy(sel)}</h2>`+dayHTML(sel,sel.getTime()===n.date.getTime());
+ else for(let i=0;i<6;i++){const d=add(m,i);h+=`<h2 class="disp" style="font-size:15px;margin-top:22px">${WD[i]}, ${dmy(d).slice(0,5)}</h2>`+dayHTML(d,d.getTime()===n.date.getTime())}
+ return h}
+function viewNotes(){const ns=ls.get("notes",[]);
+ return`<div class="card"><div class="row"><input type="text" id="ni" placeholder="Что записать? ДЗ, дедлайн, идея…" maxlength="300"><button class="btn pri" id="na">+</button></div></div>
+ <div class="card">${ns.length?ns.map(x=>`<div class="note ${x.done?"done":""}"><input type="checkbox" data-c="${x.id}" ${x.done?"checked":""}><p>${esc(x.text)}</p><button class="x" data-x="${x.id}" aria-label="Удалить">✕</button></div>`).join(""):`<div class="empty"><div>🗒️</div>Пока пусто</div>`}</div>`}
+function viewSet(){const c=cfg(),cur=parity(nowTZ().date);
+ return`<div class="card"><label class="f" style="margin-top:0">Моя подгруппа по информатике</label><select id="sg"><option value="0">Показывать обе</option><option value="1">Первая</option><option value="2">Вторая</option></select>
+ <label class="f">Сейчас идёт ${cur} неделя. Неверно?</label><div class="row"><button class="btn" data-p="чётная">Сейчас чётная</button><button class="btn" data-p="нечётная">Сейчас нечётная</button></div></div>
+ <div class="card"><b>Заметки между устройствами</b><p style="margin:6px 0 10px;font-size:14px">Заметки хранятся в браузере. Чтобы перенести их на другой телефон или ПК, скопируй код и вставь там.</p><textarea id="ex" rows="3"></textarea><div class="row" style="margin-top:8px"><button class="btn" id="eo">Скопировать мои</button><button class="btn pri" id="ei">Вставить из кода</button></div></div>`}
+/* ---------- выбор группы ---------- */
+function pickerHTML(){if(!G.length)return`<div class="card empty"><div>⏳</div>Загружаю список групп…</div>`;
+ const P=g=>g.spec+" · "+g.basis,progs=[...new Set(G.map(P))],cs=[...new Set(G.filter(g=>P(g)===pk.p).map(g=>g.course))].sort(),gs=G.filter(g=>P(g)===pk.p&&g.course==pk.c);
+ const o=(a,v,f=x=>x)=>a.map(x=>`<option value="${esc(x)}" ${String(x)===String(v)?"selected":""}>${esc(f(x))}</option>`).join("");
+ return`<div class="card"><h2 class="disp" style="font-size:16px">Выбери свою группу</h2>
+ <label class="f">Программа</label><select data-pk="p"><option value="">—</option>${o(progs,pk.p)}<option disabled>🎓 Высшее образование — скоро</option></select>
+ <label class="f">Курс</label><select data-pk="c" ${pk.p?"":"disabled"}><option value="">—</option>${o(cs,pk.c,x=>x+" курс")}</select>
+ <label class="f">Группа</label><select data-pk="g" ${pk.c?"":"disabled"}><option value="">—</option>${gs.map(g=>`<option ${g.id===pk.g?"selected":""}>${esc(g.id)}</option>`).join("")}</select>
+ <div class="row" style="margin-top:14px"><button class="btn pri" id="pkok" ${pk.g?"":"disabled"}>Готово</button>${grp?'<button class="btn" id="pkx">Отмена</button>':""}</div></div>`}
+async function pickSave(){grp=pk.g;ls.set("grp",grp);pick=false;await loadSched();const g=gi();
+ if(sb&&user&&g){await sb.from("profiles").update({group_id:g.id,stream_id:g.stream,course:g.course}).eq("id",user.id);if(prof)Object.assign(prof,{group_id:g.id,stream_id:g.stream,course:g.course})}enter()}
+/* ---------- вход ---------- */
+const ERR={"Invalid login credentials":"Неверная почта или пароль","User already registered":"Эта почта уже зарегистрирована","Email not confirmed":"Почта не подтверждена: проверь письмо"};
+function authHTML(){const up=am==="up",g=gi();
+ return`<div class="card"><h2 class="disp" style="font-size:16px">${up?"Регистрация":am==="rs"?"Сброс пароля":am==="np"?"Новый пароль":"Вход"}</h2>
+ ${up?`<label class="f">Имя (увидят другие)</label><input type="text" id="an" maxlength="40" autocomplete="nickname"><p style="margin:8px 0 0;font-size:14px;color:var(--muted)">Группа: ${g?esc(g.id):"сначала выбери во вкладке «Пары»"}</p>`:""}
+ ${am==="np"?"":`<label class="f">Почта</label><input type="email" id="ae" autocomplete="email">`}
+ ${am==="rs"?"":`<label class="f">${am==="np"?"Новый пароль":"Пароль"}</label><input type="password" id="ap" autocomplete="${up||am==="np"?"new-password":"current-password"}" placeholder="от 8 символов">`}
+ ${amsg?`<div class="err" style="${amsg[0]==="⚠"?"":"color:var(--blue)"}">${esc(amsg)}</div>`:""}
+ <div class="row" style="margin-top:14px"><button class="btn pri" data-am="${am}">${up?"Создать аккаунт":am==="rs"?"Отправить письмо":am==="np"?"Сохранить":"Войти"}</button></div>
+ ${am==="in"?`<p style="margin:12px 0 0;font-size:14px"><a href="#" data-go="up">Регистрация</a> · <a href="#" data-go="rs">Забыл пароль</a></p>`:am==="np"?"":`<p style="margin:12px 0 0;font-size:14px"><a href="#" data-go="in">← Ко входу</a></p>`}</div>`}
+async function doAuth(a){const v=s=>($(s)?.value||"").trim();amsg="";
+ try{if(a==="in"){const{error}=await sb.auth.signInWithPassword({email:v("#ae"),password:$("#ap").value});if(error)throw error}
+ else if(a==="up"){const g=gi();if(!g)throw Error("Сначала выбери группу во вкладке «Пары»");if(v("#an").length<2)throw Error("Введи имя");if($("#ap").value.length<8)throw Error("Пароль минимум 8 символов");
+  const{data,error}=await sb.auth.signUp({email:v("#ae"),password:$("#ap").value,options:{data:{name:v("#an"),group_id:g.id,stream_id:g.stream,course:g.course},emailRedirectTo:location.href.split("#")[0]}});if(error)throw error;if(!data.session){amsg="Письмо отправлено, подтверди почту и войди.";am="in"}}
+ else if(a==="rs"){const{error}=await sb.auth.resetPasswordForEmail(v("#ae"),{redirectTo:location.href.split("#")[0]});if(error)throw error;amsg="Письмо для сброса отправлено на почту."}
+ else if(a==="np"){if($("#ap").value.length<8)throw Error("Минимум 8 символов");const{error}=await sb.auth.updateUser({password:$("#ap").value});if(error)throw error;am="in";amsg="Пароль обновлён."}
+ }catch(e){amsg="⚠️ "+(ERR[e.message]||e.message)}render()}
+async function onAuth(ev,s){await ready;user=s?.user||null;prof=null;
+ if(user){prof=(await sb.from("profiles").select("*").eq("id",user.id).maybeSingle()).data;if(prof)await loadEv();
+  if(prof&&prof.group_id!==grp&&G.some(g=>g.id===prof.group_id)){grp=prof.group_id;ls.set("grp",grp);await loadSched()}}
+ if(ev==="PASSWORD_RECOVERY"){am="np";tab="more"}enter()}
+/* ---------- лента: чаты, идеи, советы ---------- */
+function ctx(){if(tab==="chat"){const g=gi(),r=chatRoom==="univ"?"univ":!g?null:chatRoom==="stream"?"stream:"+g.stream:"group:"+g.id;return r&&{kind:ck,room:r}}
+ if(tab==="idea")return{kind:"idea",room:"ideas"};if(tab==="tea"&&selTea)return{kind:"tip",room:"teachers",target:selTea};if(tab==="more"&&ms==="mat")return{kind:"material",room:"materials"};return null}
+function gate(){if(!sb)return`<div class="card"><b>Чаты ещё не подключены</b><p style="margin:6px 0 0">Нужен бесплатный бэкенд Supabase, пошагово в README (около 10 минут). Расписание работает и без него.</p></div>`;
+ if(!user)return(am==="np"?(am="in"):0,authHTML());if(!prof)return`<div class="card empty"><div>⏳</div>Загружаю профиль…</div>`;return""}
+const shell=(ph,no)=>`<div class="card" id="feed"><div class="empty"><div>⏳</div>Загружаю…</div></div>${no?"":`<div class="card"><div id="rb"></div><div class="row"><input type="text" id="fi" maxlength="1000" placeholder="${ph}" autocomplete="off"><button class="btn pri" id="fs" aria-label="Отправить">➤</button></div><div class="err" id="ferr"></div></div>`}`;
+function viewChat(){const g=gate();if(g)return g;const gg=gi();
+ const seg=`<div class="seg" style="margin-top:16px">${[["univ","🏛 Универ"],["stream","🎓 Поток"],["group","👥 Группа"]].map(([k,t])=>`<button class="btn ${chatRoom===k?"on":""}" data-cr="${k}">${t}</button>`).join("")}</div>`;
+ if(!gg&&chatRoom!=="univ")return seg+`<div class="card empty"><div>👥</div>Сначала выбери группу во вкладке «Пары»</div>`;
+ const sub={univ:"Все студенты БФ СГЮА",stream:gg?`Поток: ${gg.spec.split(" ").slice(1).join(" ")}, ${gg.basis}, ${gg.course} курс`:"",group:gg?"Группа "+gg.id:""}[chatRoom];
+ const seg2=`<div class="seg" style="margin-top:8px">${[["chat","💬 Чат"],["announce","📢 Объявления"]].map(([k,t])=>`<button class="btn ${ck===k?"on":""}" data-ck="${k}">${t}</button>`).join("")}</div>`;
+ return seg+seg2+`<p style="margin:8px 4px 0;color:var(--muted);font-size:14px">${esc(sub)}</p>`+(ck==="announce"?shell("Объявление…",!isMod()):shell("Сообщение…"))}
+const viewIdea=()=>gate()||`<div class="banner"><h2 class="disp" style="font-size:16px">💡 Что добавить на сайт?</h2><p style="margin:6px 0 0">Пиши, чего не хватает. Другие лайкают и отвечают, самое популярное делаем первым.</p></div>`+shell("Моя идея…");
+const tlist=()=>{const q=tq.toLowerCase(),l=T.filter(t=>!q||t.n.toLowerCase().includes(q)||t.s.join(" ").toLowerCase().includes(q));
+ return l.length?l.map(t=>`<button class="tr" data-t="${esc(t.n)}"><b>${esc(t.n)}</b><br><small>${esc(t.s.join(", "))}</small></button>`).join(""):`<div class="empty"><div>🔍</div>Никого не нашлось</div>`};
+function viewTea(){
+ if(selTea){const t=T.find(x=>x.n===selTea),g=gate();
+  return`<button class="btn" id="tb" style="margin-top:16px">← Все преподаватели</button><div class="card"><h2 class="disp" style="font-size:16px">${esc(selTea)}</h2><small style="color:var(--muted)">${esc((t?.s||[]).join(", "))}</small></div>`+(g||`<div class="banner">🤝 Ты на курс старше? Расскажи первокурсникам: чего ждать, как сдавать, что подготовить. Пиши по делу и без оскорблений.</div>`+shell("Совет первокурсникам…"))}
+ return`<div class="banner"><h2 class="disp" style="font-size:16px">🤝 Помоги первокурсникам</h2><p style="margin:6px 0 0">Старшекурсники рассказывают, как учиться у каждого преподавателя. Выбери преподавателя и оставь совет, а новичкам он сэкономит нервы.</p></div><div class="card"><input type="text" id="tq" placeholder="Найти преподавателя или предмет…" value="${esc(tq)}"><div id="tl">${tlist()}</div></div>`}
+async function loadFeed(){const c=F.c;if(!c)return;let q=sb.from("posts").select("id,body,parent_id,user_id,created_at,profiles(name,course),likes(count)").eq("kind",c.kind).eq("room",c.room);if(c.target)q=q.eq("target",c.target);
+ const{data,error}=await q.order("created_at",{ascending:false}).limit(100);if(F.key!==jt(ctx()))return;
+ if(error){F.rows=null;F.err=error.message}else{F.rows=data;const ids=data.map(p=>p.id);
+  F.mine=new Set(ids.length?((await sb.from("likes").select("post_id").eq("user_id",user.id).in("post_id",ids)).data||[]).map(x=>x.post_id):[])}
+ fillFeed()}
+const lk=p=>p.likes?.[0]?.count||0;
+function msg(p,rep){const own=p.user_id===user.id,mod=["moderator","admin"].includes(prof.role),q=F.c.kind==="chat"&&p.parent_id&&F.rows.find(x=>x.id===p.parent_id);
+ const an=F.c.kind==="announce";return`<div class="msg ${own?"me":""} ${rep?"rep":""} ${an?"ann":""}"><div class="mh"><b>${esc(p.profiles?.name||"Студент")}</b> ${p.profiles?.course?`<span class="chip">${p.profiles.course} курс</span>`:""}<small>${ago(p.created_at)}</small></div>${q?`<div class="qt">↩ ${esc(q.profiles?.name||"")}: ${esc(q.body.slice(0,80))}</div>`:""}<div class="mb">${an?"📢 ":""}${lnk(p.body)}</div>
+ <div class="ma"><button class="ab ${F.mine.has(p.id)?"on":""}" data-lk="${p.id}">♥ ${lk(p)}</button>${an?"":`<button class="ab" data-rp="${p.id}">↩ ответить</button>`}${own||mod?`<button class="ab" data-dl="${p.id}">🗑</button>`:`<button class="ab" data-rt="${p.id}" title="Пожаловаться">⚑</button>`}</div></div>`}
+function fillFeed(){const el=$("#feed");if(!el||!F.c||F.key!==jt(ctx()))return;const c=F.c;
+ if(F.rows===null)return void(el.innerHTML=`<div class="err">Не получилось загрузить: ${esc(F.err)}</div>`);
+ if(!F.rows.length)return void(el.innerHTML=`<div class="empty"><div>💬</div>${c.kind==="announce"?"Объявлений пока нет":c.kind==="material"?"Материалов пока нет. Поделись первым!":c.kind==="chat"?"Пока тихо. Напиши первым!":c.kind==="tip"?"Советов пока нет. Будь первым и помоги первокурсникам!":"Идей пока нет. Предложи первую!"}</div>`);
+ const R=F.rows;el.innerHTML=c.kind==="announce"?R.map(p=>msg(p)).join(""):c.kind==="chat"?[...R].reverse().map(p=>msg(p)).join(""):R.filter(p=>!p.parent_id).sort((a,b)=>lk(b)-lk(a)||(a.created_at<b.created_at?1:-1)).map(p=>msg(p)+R.filter(r=>r.parent_id===p.id).reverse().map(r=>msg(r,1)).join("")).join("");
+ if(!F.seen){F.seen=1;if(c.kind==="chat")$("#fi")?.scrollIntoView({block:"center"})}}
+async function send(){const i=$("#fi"),b=i.value.trim();if(!b||!F.c)return;const c=F.c;$("#fs").disabled=true;
+ const{error}=await sb.from("posts").insert({kind:c.kind,room:c.room,target:c.target||null,parent_id:F.reply||null,body:b});$("#fs").disabled=false;
+ if(error)return void($("#ferr").textContent=(/row-level/.test(error.message)?"Не получилось отправить. Возможно, аккаунт заблокирован за нарушение правил.":"Не отправилось: "+error.message));
+ i.value="";$("#ferr").textContent="";setReply(null);await loadFeed();i.scrollIntoView({block:"center"})}
+function setReply(id){F.reply=id;const p=id&&F.rows.find(x=>x.id===id);$("#rb").innerHTML=p?`<div class="qt" style="margin:0 0 8px">↩ ${esc(p.profiles?.name||"")}: ${esc(p.body.slice(0,60))} <button class="x" id="rx" aria-label="Отмена">✕</button></div>`:"";if(id)$("#fi").focus()}
+async function enter(){render();loadSub();ch&&sb?.removeChannel(ch);ch=null;const c=ctx();if(!c||!sb||!user||!prof){F.key="";return}
+ const key=jt(c);if(F.key!==key)F={key,c,rows:[],mine:new Set(),reply:null};
+ ch=sb.channel("f"+Date.now()).on("postgres_changes",{event:"*",schema:"public",table:"posts",filter:"room=eq."+c.room},()=>loadFeed()).subscribe();await loadFeed()}
+/* ---------- вкладка «Ещё» ---------- */
+/* ---------- «Ещё»: календарь, опросы, материалы, админка ---------- */
+const isMod=()=>["moderator","admin"].includes(prof?.role),lnk=s=>esc(s).replace(/https?:\/\/[^\s<]+/g,u=>`<a href="${u}" target="_blank" rel="noopener nofollow">${u}</a>`);
+const roomOf=s=>{const g=gi();return s==="univ"?"univ":!g?null:s==="stream"?"stream:"+g.stream:"group:"+g.id};
+const rl=r=>!r?"личное":r==="univ"?"универ":r.startsWith("stream")?"поток":"группа";
+const fmt=t=>new Date(t).toLocaleString("ru",{timeZone:TZ,weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+async function loadEv(){const{data,error}=await sb.from("events").select("id,title,due,room,user_id,done").gte("due",new Date(Date.now()-864e5).toISOString()).order("due").limit(100);EV=error?[]:data}
+function dlHTML(){const l=EV.filter(e=>!e.done&&new Date(e.due)>Date.now()).slice(0,3);
+ return l.length?`<div class="card"><b>⏰ Ближайшие дедлайны</b>${l.map(e=>`<p style="margin:6px 0 0"><b>${fmt(e.due)}</b> · ${esc(e.title)} <span class="chip">${rl(e.room)}</span></p>`).join("")}</div>`:""}
+const viewCal=()=>`<div class="card"><h2 class="disp" style="font-size:16px">📆 Календарь дедлайнов</h2><label class="f">Что</label><input type="text" id="ct" maxlength="200" placeholder="Контрольная по математике"><label class="f">Когда</label><input type="datetime-local" id="cd"><label class="f">Для кого</label><select id="cs"><option value="">Только для меня</option>${isMod()?`<option value="group">Моя группа</option><option value="stream">Мой поток</option><option value="univ">Весь универ</option>`:""}</select><div class="row" style="margin-top:12px"><button class="btn pri" id="ca">Добавить</button><button class="btn" id="ci">📥 Экспорт .ics</button></div><div class="err" id="cerr"></div></div><div class="card" id="sub">⏳</div>`;
+function evHTML(){return EV.length?EV.map(e=>`<div class="note ${e.done?"done":""}">${e.room?"":`<input type="checkbox" data-ec="${e.id}" ${e.done?"checked":""}>`}<p><b>${fmt(e.due)}</b> ${esc(e.title)} <span class="chip">${rl(e.room)}</span></p>${e.user_id===user.id||(isMod()&&e.room)?`<button class="x" data-ex="${e.id}" aria-label="Удалить">✕</button>`:""}</div>`).join(""):`<div class="empty"><div>📆</div>Дедлайнов пока нет</div>`}
+async function addEv(){const t=$("#ct").value.trim(),d=$("#cd").value,s=$("#cs").value,room=s?roomOf(s):null;if(!t||!d)return void($("#cerr").textContent="Заполни, что и когда");if(s&&!room)return void($("#cerr").textContent="Сначала выбери группу");
+ const{error}=await sb.from("events").insert({title:t,due:new Date(d).toISOString(),room});if(error)return void($("#cerr").textContent="Не сохранилось: "+error.message);await loadEv();loadSub()}
+function ics(){const z=d=>new Date(d).toISOString().replace(/[-:]|\.\d{3}/g,""),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//BF SGUA//RU"];
+ EV.forEach(e=>L.push("BEGIN:VEVENT","UID:ev"+e.id+"@bfsgua","DTSTAMP:"+z(Date.now()),"DTSTART:"+z(e.due),"DTEND:"+z(+new Date(e.due)+36e5),"SUMMARY:"+e.title.replace(/[\\;,\n]/g," "),"END:VEVENT"));L.push("END:VCALENDAR");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([L.join("\r\n")],{type:"text/calendar"}));a.download="deadlines.ics";a.click()}
+const viewPoll=()=>`<div class="card"><h2 class="disp" style="font-size:16px">📊 Новый опрос</h2><label class="f">Вопрос</label><input type="text" id="pq" maxlength="200"><label class="f">Варианты (каждый с новой строки, от 2 до 6)</label><textarea id="po" rows="3"></textarea><label class="f">Для кого</label><select id="ps"><option value="group">Моя группа</option><option value="stream">Мой поток</option>${isMod()?'<option value="univ">Весь универ</option>':""}</select><div class="row" style="margin-top:12px"><button class="btn pri" id="pa">Создать</button></div><div class="err" id="perr"></div><p style="font-size:13px;color:var(--muted);margin:8px 0 0">Итоги опроса — мнение студентов, а не решение университета.</p></div><div id="sub"><div class="card">⏳</div></div>`;
+async function loadPolls(){const g=gi(),rooms=["univ"].concat(g?["stream:"+g.stream,"group:"+g.id]:[]);
+ const{data:P,error}=await sb.from("polls").select("id,room,question,options,user_id").in("room",rooms).order("created_at",{ascending:false}).limit(30);
+ if(error)return void($("#sub").innerHTML=`<div class="err">${esc(error.message)}</div>`);
+ const ids=P.map(p=>p.id);let R=[],M=[];if(ids.length){R=(await sb.rpc("poll_results",{ids})).data||[];M=(await sb.from("poll_votes").select("poll_id,choice").in("poll_id",ids)).data||[]}
+ $("#sub").innerHTML=P.length?P.map(p=>{const n=p.options.map((_,i)=>+(R.find(r=>r.poll_id===p.id&&r.choice===i)?.n||0)),tot=n.reduce((a,b)=>a+b,0),my=M.find(m=>m.poll_id===p.id)?.choice;
+  return`<div class="card"><b>${esc(p.question)}</b> <span class="chip">${rl(p.room)}</span>${p.options.map((o,i)=>`<button class="pv ${my===i?"on":""}" data-pv="${p.id}:${i}"><span class="bar" style="width:${tot?Math.round(n[i]/tot*100):0}%"></span><span>${esc(o)} · ${n[i]}</span></button>`).join("")}<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--muted)"><span>Голосов: ${tot}</span>${p.user_id===user.id||isMod()?`<button class="ab" data-pd="${p.id}">🗑</button>`:""}</div></div>`}).join(""):`<div class="card empty"><div>📊</div>Опросов пока нет</div>`}
+async function addPoll(){const q=$("#pq").value.trim(),o=$("#po").value.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,7),room=roomOf($("#ps").value);
+ if(q.length<3||o.length<2||o.length>6||!room)return void($("#perr").textContent="Нужен вопрос и от 2 до 6 вариантов, группа должна быть выбрана");
+ const{error}=await sb.from("polls").insert({room,question:q,options:o});if(error)return void($("#perr").textContent="Не создалось: "+error.message);$("#pq").value=$("#po").value="";$("#perr").textContent="";loadPolls()}
+const viewMat=()=>`<div class="banner"><h2 class="disp" style="font-size:16px">📚 Материалы</h2><p style="margin:6px 0 0">Конспекты, презентации, подготовка к экзаменам: пиши название и ссылку (Google Диск, Яндекс Диск и т. п.). Публикуй только то, на что у тебя есть права.</p></div>`+shell("Название и ссылка…");
+const viewAdm=()=>isMod()?`<div id="sub"><div class="card">⏳</div></div>`:`<div class="card empty"><div>🔒</div>Нет доступа</div>`;
+async function loadAdm(){const c=async t=>(await sb.from(t).select("*",{count:"exact",head:true})).count??"—";
+ const[u,p,r]=await Promise.all([c("profiles"),c("posts"),c("reports")]);
+ const R=(await sb.from("reports").select("id,posts(id,body,room,user_id,profiles(name))").order("created_at",{ascending:false}).limit(30)).data||[];
+ const N=(await sb.from("posts").select("id,kind,room,body,user_id,profiles(name)").order("created_at",{ascending:false}).limit(40)).data||[];
+ const U=(await sb.from("profiles").select("id,name,role,banned,group_id").order("created_at",{ascending:false}).limit(60)).data||[];
+ const bb=(id,b)=>`<button class="ab" data-ab="${id}" data-bv="${b?0:1}">${b?"Разбанить":"🚫 Бан"}</button>`;
+ $("#sub").innerHTML=`<div class="card"><b>Статистика</b><p style="margin:6px 0 0">Студентов: ${u} · Публикаций: ${p} · Жалоб: ${r}</p></div>
+ <div class="card"><b>⚑ Жалобы</b>${R.length?R.map(x=>x.posts?`<div class="msg"><div class="mh"><b>${esc(x.posts.profiles?.name||"")}</b> <span class="chip">${esc(x.posts.room)}</span></div><div class="mb">${lnk(x.posts.body)}</div><div class="ma"><button class="ab" data-ad="${x.posts.id}">🗑 Удалить</button>${bb(x.posts.user_id,0)}<button class="ab" data-ar="${x.id}">Отклонить</button></div></div>`:"").join(""):`<div class="empty">Жалоб нет 🎉</div>`}</div>
+ <div class="card"><b>Последние публикации</b>${N.map(x=>`<div class="msg"><div class="mh"><b>${esc(x.profiles?.name||"")}</b> <span class="chip">${esc(x.room)}</span></div><div class="mb">${lnk(x.body)}</div><div class="ma"><button class="ab" data-ad="${x.id}">🗑</button>${bb(x.user_id,0)}</div></div>`).join("")}</div>
+ <div class="card"><b>Пользователи</b>${U.map(x=>`<div class="msg"><div class="mh"><b>${esc(x.name)}</b> <span class="chip">${esc(x.group_id)}</span> <span class="chip">${x.role}</span>${x.banned?" 🚫":""}</div><div class="ma">${x.role==="admin"?"":bb(x.id,x.banned)}${prof.role==="admin"&&x.id!==user.id?`<button class="ab" data-ro="${x.id}:${x.role==="moderator"?"student":"moderator"}">${x.role==="moderator"?"Снять модератора":"Сделать модератором"}</button>`:""}</div></div>`).join("")}</div>`}
+async function loadSub(){if(!sb||!user||!prof||tab!=="more"||!ms||!$("#sub"))return;
+ if(ms==="cal"){await loadEv();$("#sub").innerHTML=evHTML()}else if(ms==="poll")loadPolls();else if(ms==="adm")loadAdm()}
+const MS=[["cal","📆","Календарь дедлайнов"],["poll","📊","Опросы"],["mat","📚","Материалы"]];
+function viewMore(){const g=gi();
+ if(ms){const b=`<button class="btn" id="mb" style="margin-top:16px">← Назад</button>`,x=gate();if(x)return b+x;
+  return b+(ms==="cal"?viewCal():ms==="poll"?viewPoll():ms==="mat"?viewMat():viewAdm())}
+ return`<div style="margin-top:8px">${MS.concat(isMod()?[["adm","🛡","Админка"]]:[]).map(([k,i,t])=>`<button class="tr" data-ms="${k}">${i} <b>${t}</b></button>`).join("")}</div>
+ <div class="card"><b>Моя группа</b><p style="margin:6px 0 10px">${g?esc(g.id)+" · "+esc(g.spec)+", "+esc(g.basis)+", "+g.course+" курс":"не выбрана"}</p><button class="btn" id="chg">Сменить группу</button></div>`
+ +(!sb?`<div class="card"><b>Аккаунт</b><p style="margin:6px 0 0">Бэкенд не подключён, инструкция в README.</p></div>`:user?`<div class="card"><b>${esc(prof?.name||"")}</b> ${isMod()?`<span class="chip">${prof.role}</span>`:""}<p style="margin:4px 0 10px;color:var(--muted)">${esc(user.email)} (другим не показывается)</p><div class="row"><button class="btn" id="lo">Выйти</button><button class="btn" id="del">Удалить аккаунт</button></div></div>`:authHTML())+viewSet()+viewNotes()}
+function render(){const g=gi();$("#grp").textContent="БФ СГЮА · "+(grp||"выбери группу");$("#par").textContent=parity(nowTZ().date)+" неделя";
+ $("#wxp").textContent="⛅ "+(wx?`${Math.round(wx.tmin)}…${Math.round(wx.tmax)}°`:"…");
+ document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+ $("#view").innerHTML=tab==="sch"?(!grp||pick?pickerHTML():dlHTML()+viewSch()):tab==="chat"?viewChat():tab==="tea"?viewTea():tab==="idea"?viewIdea():viewMore();
+ if(tab==="more"&&$("#sg"))$("#sg").value=cfg().sub;
+ const u=S.meta.checked;$("#foot").textContent=tab==="sch"&&grp&&u?`Проверено на сайте колледжа: ${ago(u)}`:"";fillFeed()}
+/* ---------- события ---------- */
+document.addEventListener("click",async e=>{const a=e.target.closest("a[data-go]");if(a){e.preventDefault();am=a.dataset.go;amsg="";return render()}
+ const t=e.target.closest("button,input[type=checkbox]");if(!t)return;const d=t.dataset,id=t.id;
+ if(d.tab){if(tab==="tea"&&d.tab==="tea")selTea=null;if(d.tab==="more")ms="";tab=d.tab;pick=false;return enter()}
+ if(d.t){selTea=d.t;tab="tea";scrollTo(0,0);return enter()}
+ if(id==="tb"){selTea=null;return enter()}
+ if(d.cr){chatRoom=d.cr;ls.set("cr",chatRoom);return enter()}
+ if(id==="pkok")return pickSave();if(id==="pkx"){pick=false;return render()}
+ if(id==="chg"){pk={p:"",c:"",g:""};pick=true;tab="sch";return enter()}
+ if(d.am)return doAuth(d.am);if(id==="lo"){await sb.auth.signOut();return}
+ if(id==="fs")return send();if(id==="rx")return setReply(null);
+ if(d.lk){const n=+d.lk,{error}=await sb.from("likes").insert({post_id:n});if(error&&error.code==="23505")await sb.from("likes").delete().match({post_id:n,user_id:user.id});return loadFeed()}
+ if(d.rp){const p=F.rows.find(x=>x.id==d.rp);return setReply(F.c.kind==="chat"?p.id:(p.parent_id||p.id))}
+ if(d.dl){if(confirm("Удалить сообщение?")){await sb.from("posts").delete().eq("id",+d.dl);loadFeed()}return}
+ if(d.rt){const{error}=await sb.from("reports").insert({post_id:+d.rt});alert(error?"Ты уже жаловался на это сообщение":"Жалоба отправлена модератору");return}
+ if(d.d){sel=parse(d.d);return render()}if(d.m){mode=d.m;return render()}if(id==="td"){sel=nowTZ().date;return render()}
+ if(id==="pw"||id==="nw"){sel=add(sel,id==="pw"?-7:7);return render()}
+ if(d.ms){ms=d.ms;return enter()}if(id==="mb"){ms="";return enter()}if(d.ck){ck=d.ck;return enter()}
+ if(id==="ca")return addEv();if(id==="ci")return ics();
+ if(d.ec){await sb.from("events").update({done:t.checked}).eq("id",+d.ec);await loadEv();return loadSub()}
+ if(d.ex){await sb.from("events").delete().eq("id",+d.ex);await loadEv();return loadSub()}
+ if(id==="pa")return addPoll();
+ if(d.pv){const[pid,ch]=d.pv.split(":");await sb.from("poll_votes").upsert({poll_id:+pid,choice:+ch,user_id:user.id},{onConflict:"poll_id,user_id"});return loadPolls()}
+ if(d.pd){if(confirm("Удалить опрос?")){await sb.from("polls").delete().eq("id",+d.pd);loadPolls()}return}
+ if(d.ad){if(confirm("Удалить публикацию?")){await sb.from("posts").delete().eq("id",+d.ad);loadAdm()}return}
+ if(d.ab){await sb.from("profiles").update({banned:d.bv==="1"}).eq("id",d.ab);return loadAdm()}
+ if(d.ar){await sb.from("reports").delete().eq("id",+d.ar);return loadAdm()}
+ if(d.ro){const[rid,role]=d.ro.split(":");await sb.from("profiles").update({role}).eq("id",rid);return loadAdm()}
+ if(id==="del"){if(confirm("Удалить аккаунт и все твои сообщения? Это нельзя отменить.")){const{error}=await sb.rpc("delete_my_account");if(error)return alert("Не получилось: "+error.message);await sb.auth.signOut()}return}
+ const ns=ls.get("notes",[]);if(id==="na")return addNote();
+ if(d.c){ns.find(n=>n.id==d.c).done=t.checked;ls.set("notes",ns);return render()}
+ if(d.x){ls.set("notes",ns.filter(n=>n.id!=d.x));return render()}
+ if(d.p){const m=mon(nowTZ().date);ls.set("anchor",iso(d.p==="чётная"?m:add(m,-7)));return render()}
+ if(id==="eo"){const v=JSON.stringify(ns);$("#ex").value=v;navigator.clipboard?.writeText(v).catch(()=>{})}
+ if(id==="ei"){try{const a=JSON.parse($("#ex").value);if(Array.isArray(a)){ls.set("notes",[...ns,...a.map(x=>({id:Date.now()+Math.random(),text:String(x.text),done:!!x.done}))]);tab="more";render()}}catch{alert("Не получилось прочитать код")}}});
+document.addEventListener("change",e=>{const t=e.target;if(t.id==="sg")ls.set("sub",t.value);
+ if(t.dataset.pk){const k=t.dataset.pk;pk[k]=t.value;if(k==="p")pk.c=pk.g="";if(k==="c")pk.g="";render()}});
+document.addEventListener("input",e=>{if(e.target.id==="tq"){tq=e.target.value;$("#tl").innerHTML=tlist()}});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter")return;const i=e.target.id;if(i==="ni")addNote();else if(i==="fi")send();else if(i==="ae"||i==="ap")doAuth(am)});
+function addNote(){const i=$("#ni"),v=i.value.trim();if(!v)return;const ns=ls.get("notes",[]);ns.push({id:Date.now(),text:v,done:false});ls.set("notes",ns);render()}
+ready.then(()=>{if(!sb)enter();loadWx()});
+if(sb)sb.auth.onAuthStateChange((ev,s)=>setTimeout(()=>onAuth(ev,s),0));
+setInterval(()=>{if(tab==="sch"&&!pick)render()},60000);
+</script>
+</body>
+</html>
