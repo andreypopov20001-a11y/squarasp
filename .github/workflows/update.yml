@@ -1,0 +1,31 @@
+name: Обновить расписание и опубликовать сайт
+on:
+  schedule: [{cron: "0 */3 * * *"}]
+  push: {branches: [main]}
+  workflow_dispatch:
+permissions: {contents: write, pages: write, id-token: write}
+concurrency: {group: pages, cancel-in-progress: false}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -r requirements.txt
+      - run: python scripts/update_schedule.py
+      - name: Сохранить новое расписание в репозиторий
+        run: |
+          git config user.name "schedule-bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/schedules data/groups.json data/teachers.json
+          git diff --cached --quiet || (git commit -m "Обновлено расписание" && git push)
+      - run: mkdir _site && cp index.html config.js _site/ && cp -r data _site/data && rm -rf _site/data/pdfs
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: _site}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.d.outputs.page_url }}"}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4
